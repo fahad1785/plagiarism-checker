@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plagiarism Checker</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .input-group { margin: 20px 0; }
+        textarea { width: 100%; height: 200px; padding: 10px; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        #result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Plagiarism Checker</h1>
+    <div class="input-group">
+        <h3>Paste Your Text:</h3>
+        <textarea id="userText" placeholder="Enter text here..."></textarea>
+    </div>
+    <div class="input-group">
+        <h3>Upload Reference File (PDF/DOCX/TXT):</h3>
+        <input type="file" id="referenceFile" accept=".pdf,.docx,.txt">
+    </div>
+    <button onclick="checkPlagiarism()">Check Plagiarism</button>
+    <div id="result"></div>
+
+    <script>
+        async function checkPlagiarism() {
+            const userText = document.getElementById('userText').value;
+            const referenceFile = document.getElementById('referenceFile').files[0];
+            const resultDiv = document.getElementById('result');
+
+            if (!userText || !referenceFile) {
+                resultDiv.innerHTML = 'Please fill all fields!';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('text', userText);
+            formData.append('file', referenceFile);
+
+            try {
+                const response = await fetch('/check', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.error) {
+                    resultDiv.innerHTML = `Error: ${data.error}`;
+                } else {
+                    resultDiv.innerHTML = `Similarity: ${data.similarity}%`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = 'Error checking plagiarism.';
+            }
+        }
+    </script>
+</body>
+</html>
